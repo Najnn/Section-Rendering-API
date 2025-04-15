@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let filterQuery = new URLSearchParams(window.location.search);
   let abortController = new AbortController();
   const abortSignal = abortController.signal;
+  const parser = new DOMParser();
 
   const createSearchQuery = (wrapper) => {
     const paramMap = {
@@ -71,17 +72,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const setPriceFilter = () => {
-    if (filterQuery.has('filter.v.price.gte')) {
-      document.querySelectorAll('[li-render-filter="price-min"]').forEach(element => {
-        element.value = filterQuery.get('filter.v.price.gte')
-      })
-    }
+    document.querySelectorAll('[li-render-filter="price-min"]').forEach(element => {
+      const param = element.getAttribute("li-render-filter-min-param") || 'filter.v.price.gte'
+      if (filterQuery.has(param)) {
+        element.value = filterQuery.get(param)
+      }
+    })
 
-    if (filterQuery.has('filter.v.price.lte')) {
-      document.querySelectorAll('[li-render-filter="price-max"]').forEach(element => {
-        element.value = filterQuery.get('filter.v.price.lte')
-      })
-    }
+    document.querySelectorAll('[li-render-filter="price-max"]').forEach(element => {
+      const param = element.getAttribute("li-render-filter-max-param") || 'filter.v.price.lte'
+      if (filterQuery.has(param)) {
+        element.value = filterQuery.get(param)
+      }
+    })
   }
 
 
@@ -97,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       abortController = new AbortController();
-
       const response = await fetch(fetchUrl, { abortSignal });
 
       if (!response.ok) {
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('[liquify][renderSection] Failed to parse response text.');
       }
 
-      const parser = new DOMParser();
+
       let newDocument;
 
       try {
