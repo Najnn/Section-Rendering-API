@@ -206,6 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionId = getSectionId(wrapper)
     const searchQuery = createSearchQuery(wrapper)
 
+    console.log(wrapper, input, searchQuery)
+
     if (input) {
       input.addEventListener(
         'input',
@@ -271,7 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .querySelectorAll('[li-render-filter="filter"]')
         .forEach((element) => {
           const trigger = element.getAttribute('li-render-filter-trigger') || "change"
+          console.log("Trigger", element)
           element.addEventListener(trigger, (e) => {
+            console.log("Triggered filter:", element)
             const param = element.getAttribute('li-render-filter-name')
             const value = element.getAttribute('li-render-filter-value')
             getQueryParam(param, value);
@@ -330,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
           element.addEventListener('click', (e) => {
             filterQuery = new URLSearchParams()
             history.replaceState(null, '', window.location.pathname);
-            renderSection(window.location.pathname + '?section_id=' + sectionId, '[li-render="filter-wrapper"]', undefined, 'filter')
+            renderSection(window.location.pathname + '?section_id=' + sectionId, '[li-render-filter="wrapper"]', undefined, 'filter')
           });
         });
 
@@ -376,14 +380,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (path === '' || !path) {
       console.warn(
-        '[liquify][recWrapper] Unable to render product recommendations because of missing path. Please add the attribute li-render-path="{{ routes.product_recommendations_url }}" to the li-render="recommendations-wrapper" element'
+        '[liquify][recWrapper] Unable to render product recommendations because of missing path. Please add the attribute li-render-recommended-path="{{ routes.product_recommendations_url }}" to the li-render-recommended="wrapper" element'
       )
       return
     }
 
     if (productId === '' || !productId) {
       console.warn(
-        '[liquify][recWrapper] Unable to render product recommendations because of missing product ID. Please add the attribute li-render-product-id="{{ product.id }}" to the li-render="recommendations-wrapper" element'
+        '[liquify][recWrapper] Unable to render product recommendations because of missing product ID. Please add the attribute li-render-recommended-product="{{ product.id }}" to the li-render-recommended="wrapper" element'
       )
       return
     }
@@ -407,9 +411,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initializeCustomTrigger = () => {
       wrapper.querySelectorAll('[li-render-custom-trigger]').forEach(element => {
-        const triggerEvent = element.getAttribute('li-render-custom-trigger')
-        const value = element.getAttribute('[li-render-custom-value')
+        const triggerEvent = element.getAttribute('li-render-custom-trigger') || "change"
+        const value = element.getAttribute('li-render-custom-value')
         let newSerchParams = new URLSearchParams(value)
+
+        if (!value) {
+          '[liquify][customWrapper] Unable to render custom section because of missing value. Please add the attribute li-render-custom-value="{{ product.url }}?section_id={{ section.id }}&variant={{ value.variant.id }}" (example value) to the li-render-custom-trigger element'
+          return
+        }
 
         element.addEventListener(triggerEvent, (e) => {
           console.log('[liquify][customWrapper] Custom Path:', value)
